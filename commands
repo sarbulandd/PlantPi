@@ -1,0 +1,25 @@
+
+------------------------To get into environment------------
+pi@group19:~ $ cd teamproject
+pi@group19:~/teamproject $ source projectenv/bin/activate
+
+------------------------Run dht11 sensor-------------------
+(projectenv) pi@group19:~/teamproject $ python3 dht11.py
+
+------------------------Run FastApi Application------------
+(projectenv) pi@group19:~/teamproject $ uvicorn main:app --reload
+INFO:     Will watch for changes in these directories: ['/home/pi/teamproject']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [5642] using StatpipReload
+INFO:     Started server process [5644]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+-------------------------Run FastAPI to ReactNative App--------------------------------
+(projectenv) pi@group19:~/teamproject $ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+-----------------------In URL---------
+http://127.0.0.1:8000/
+/sensor-data
+/store-sensor-data
+
+
