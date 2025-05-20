@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const sensorSchema = new mongoose.Schema({
-  timestamp: { type: String, required: true },
-  moisture_value: Number,
-  moisture_status: String,
-  temperature_celsius: Number,
-  humidity_percent: Number
+const sensorDataSchema = new mongoose.Schema({
+    temperature: Number,
+    humidity: Number,
+    soilMoisture: Number,
+    soilMoistureStatus: String,
+    timestamp: Date
 });
 
-module.exports = mongoose.model('SensorData', sensorSchema);
+module.exports = mongoose.model("SensorData", sensorDataSchema);
