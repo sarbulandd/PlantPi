@@ -1,61 +1,39 @@
-// scripts/seedSensorData.js
 const mongoose = require("mongoose");
 const { execSync } = require("child_process");
 const SensorData = require("/home/pi/teamproject/SensorData.js");
 
-const mongoURI = "mongodb+srv://Speianu:Porsche2002.@cluster0.jvcke.mongodb.net/plant_monitor?retryWrites=true&w=majority";
-
-async function getDHT11Data() {
-    try {
-        const output = execSync("python3 /home/pi/teamproject/dht11.py").toString();
-        const match = output.match(/Temperature:\s*([\d.]+).*?Humidity:\s*([\d.]+)/);
-        if (match) {
-            return {
-                temperature_celsius: parseFloat(match[1]),
-                humidity_percent: parseFloat(match[2])
-            };
-        }
-    } catch (err) {
-        console.error("❌ Error reading DHT11:", err.message);
-    }
-    return { temperature_celsius: null, humidity_percent: null };
-}
-
-async function getSoilMoistureData() {
-    try {
-        const output = execSync("python3 /home/pi/teamproject/soilmoisture.py").toString();
-        const match = output.match(/Moisture:\s*(\d+).*?Status:\s*(\w+)/i);
-        if (match) {
-            return {
-                moisture_value: parseInt(match[1]),
-                moisture_status: match[2].toUpperCase()
-            };
-        }
-    } catch (err) {
-        console.error("❌ Error reading soil moisture:", err.message);
-    }
-    return { moisture_value: null, moisture_status: "UNKNOWN" };
-}
+const mongoURI = "mongodb+srv://Speianu:Porsche2002.@cluster0.jvcke.mongodb.net/Cluster0?retryWrites=true&w=majority";
 
 async function seedData() {
     await mongoose.connect(mongoURI);
     console.log("✅ Connected to MongoDB");
 
-    const dhtData = await getDHT11Data();
-    const soilData = await getSoilMoistureData();
+    try {
+        // === Read from DHT11 sensor ===
+        const dhtOutput = execSync("python3 /home/pi/teamproject/dht11.py").toString();
+        const dhtData = JSON.parse(dhtOutput);
+        
+        // === Read from Soil Moisture sensor ===
+        const soilOutput = execSync("python3 /home/pi/teamproject/SoilMoisture.py").toString();
+        const soilData = JSON.parse(soilOutput);
 
-    const document = {
-        timestamp: new Date(),
-        ...dhtData,
-        ...soilData
-    };
+        // Create sensor data document
+        const document = new SensorData({
+            temperature: dhtData.temperature_celsius,
+            humidity: dhtData.humidity_percent,
+            soilMoisture: soilData.moisture_value,
+            soilMoistureStatus: soilData.moisture_status,
+            timestamp: new Date()
+        });
 
-    await SensorData.insertMany([document]);
-    console.log("🌱 Live sensor data inserted!");
+        await document.save();
+        console.log("🌱 Real sensor data inserted into MongoDB!");
+    } catch (err) {
+        console.error("❌ Error during sensor read or DB insert:", err);
+    }
 
-    mongoose.disconnect();
+    await mongoose.disconnect();
+    console.log("🔌 Disconnected from MongoDB");
 }
 
-seedData().catch(err => {
-    console.error("❌ Error seeding data:", err);
-});
+seedData();
