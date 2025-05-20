@@ -12,12 +12,12 @@ async function connectDB() {
 async function seedData() {
     try {
         console.log("\n📡 Reading from DHT11...");
-        const dhtOutput = execSync("python3 /home/pi/teamproject/dht11.py").toString();
+        const dhtOutput = execSync("python3 /home/pi/teamproject/dht11proto.py").toString();
         console.log("📥 DHT11 Raw Output:", dhtOutput);
         const dhtData = JSON.parse(dhtOutput);
 
         console.log("🌱 Reading from Soil Sensor...");
-        const soilOutput = execSync("python3 /home/pi/teamproject/SoilMoisture.py").toString();
+        const soilOutput = execSync("python3 /home/pi/teamproject/SoilMoistureproto.py").toString();
         console.log("📥 Soil Sensor Raw Output:", soilOutput);
         const soilData = JSON.parse(soilOutput);
 
