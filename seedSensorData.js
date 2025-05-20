@@ -10,11 +10,15 @@ async function seedData() {
 
     try {
         // === Read from DHT11 sensor ===
+        console.log("📡 Reading from DHT11...");
         const dhtOutput = execSync("python3 /home/pi/teamproject/dht11.py").toString();
+        console.log("📥 DHT11 Raw Output:", dhtOutput);
         const dhtData = JSON.parse(dhtOutput);
-        
+
         // === Read from Soil Moisture sensor ===
+        console.log("🌱 Reading from Soil Sensor...");
         const soilOutput = execSync("python3 /home/pi/teamproject/SoilMoisture.py").toString();
+        console.log("📥 Soil Sensor Raw Output:", soilOutput);
         const soilData = JSON.parse(soilOutput);
 
         // Create sensor data document
@@ -26,6 +30,7 @@ async function seedData() {
             timestamp: new Date()
         });
 
+        console.log("📝 Saving to MongoDB...");
         await document.save();
         console.log("🌱 Real sensor data inserted into MongoDB!");
     } catch (err) {
